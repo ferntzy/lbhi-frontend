@@ -56,7 +56,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
             style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
             <img
-              src="public/images/lbhi_logo.png"
+              src="/images/lbhi_logo.png"
               alt="LBHI Logo"
               style={{
                 width: '40px',
