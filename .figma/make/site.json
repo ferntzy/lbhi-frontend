@@ -1,0 +1,10 @@
+{
+  "description": "A professional hospital website showcasing services, doctors, news, and community outreach with an easy-to-manage backend for Leyte Baptist Hospital staff.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
