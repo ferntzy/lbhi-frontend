@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { Page } from '../App'
+import type { Page } from '../../App'
 
 interface Props {
   currentPage: Page
@@ -11,8 +11,9 @@ const navLinks: { label: string; page: Page }[] = [
   { label: 'About Us', page: 'about' },
   { label: 'Services', page: 'services' },
   { label: 'Doctors', page: 'doctors' },
-  { label: 'Departments', page: 'departments' },
+  // { label: 'Departments', page: 'departments' },
   { label: 'Org Structure', page: 'org' },
+  // { label: 'Centers', page: 'centers' },
   { label: 'News', page: 'news' },
   { label: 'Stories', page: 'stories' },
   { label: 'Community', page: 'community' },
@@ -54,25 +55,19 @@ export default function Navigation({ currentPage, navigate }: Props) {
             onClick={() => handleNav('home')}
             style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
-            <div
+            <img
+              src="/images/lbhi_logo.png"
+              alt="LBHI Logo"
               style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                border: '2px solid #4dd9d0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                objectFit: 'contain',
                 flexShrink: 0,
               }}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2v12M2 8h12" stroke="#4dd9d0" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
+            />
             <div style={{ textAlign: 'left' }}>
               <div style={{ color: '#ffffff', fontWeight: 600, fontSize: '13px', lineHeight: 1.2, letterSpacing: '0.02em' }}>
-                Leyte Baptist Hospital
+                Leyte Baptist Hospital, Inc.
               </div>
               <div style={{ color: '#7fe3e0', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                 Hilongos, Leyte
@@ -121,7 +116,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
 
           {/* Right actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button
+            {/* <button
               onClick={() => handleNav('contact')}
               style={{
                 display: 'flex',
@@ -153,7 +148,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
                 }}
               />
               Emergency
-            </button>
+            </button> */}
 
             {/* Hamburger */}
             <button
