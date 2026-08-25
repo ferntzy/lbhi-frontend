@@ -84,7 +84,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
                 textAlign: 'left',
               }}
             >
-              Leyte Baptist Hospital
+              Leyte Baptist Hospital, Inc.
             </div>
           </button>
 
