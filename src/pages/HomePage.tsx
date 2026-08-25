@@ -11,6 +11,37 @@ interface HeroMedia {
   poster?: string
 }
 
+const doctors = [
+  {
+    name: 'Dr. Maria Reyes',
+    role: 'Attending Physician',
+    specialty: 'Internal Medicine',
+    detail: 'Medical Staff · Full-time',
+    photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=800&fit=crop&auto=format',
+  },
+  {
+    name: 'Dr. James Cruz',
+    role: 'Attending Physician',
+    specialty: 'General Surgery',
+    detail: 'Department Head · Surgery',
+    photo: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&h=800&fit=crop&auto=format',
+  },
+  {
+    name: 'Dr. Ana Lim',
+    role: 'Resident Physician',
+    specialty: 'Obstetrics & Gynecology',
+    detail: 'Maternal & Child Care',
+    photo: 'images/doctor.avif',
+  },
+  {
+    name: 'Dr. Roberto Tan',
+    role: 'Attending Physician',
+    specialty: 'Pediatrics',
+    detail: 'Full-time',
+    photo: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&h=800&fit=crop&auto=format',
+  },
+]
+
 const heroMedia: HeroMedia[] = [
   { type: 'image', src: 'https://images.unsplash.com/photo-1550831106-2747f0d6a81c?w=1800&h=1100&fit=crop&auto=format' },
   { type: 'image', src: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1800&h=1100&fit=crop&auto=format' },
@@ -681,6 +712,129 @@ export default function HomePage({ navigate }: Props) {
                 Read the full story →
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Our Doctors — large portraits, no cards ── */}
+      <section style={{ backgroundColor: '#ffffff', padding: '96px 0 80px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              marginBottom: '56px',
+              flexWrap: 'wrap',
+              gap: '16px',
+            }}
+          >
+            <div>
+              <h2
+                style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: 'clamp(28px, 4vw, 40px)',
+                  color: '#0d2240',
+                  lineHeight: 1.15,
+                  margin: '0 0 8px',
+                }}
+              >
+                Our doctors
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: '15px', margin: 0, maxWidth: '420px' }}>
+                The physicians who care for patients at Leyte Baptist Hospital.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('doctors')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#1a7f7a',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              View all doctors →
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: '48px 32px',
+            }}
+          >
+            {doctors.map((doc) => (
+              <div
+                key={doc.name}
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate('doctors')}
+              >
+                {/* Large portrait — the main visual weight */}
+                <div
+                  style={{
+                    aspectRatio: '3/4',
+                    overflow: 'hidden',
+                    backgroundColor: '#e5e7eb',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <img
+                    src={doc.photo}
+                    alt={doc.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                      transition: 'transform 0.5s ease',
+                    }}
+                    loading="lazy"
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.03)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: '#1a7f7a',
+                    marginBottom: '6px',
+                  }}
+                >
+                  {doc.role}
+                </div>
+
+                <h3
+                  style={{
+                    fontFamily: "'DM Serif Display', Georgia, serif",
+                    fontSize: '22px',
+                    color: '#0d2240',
+                    margin: '0 0 6px',
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {doc.name}
+                </h3>
+
+                <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '4px' }}>
+                  {doc.specialty}
+                </div>
+
+                {doc.detail && (
+                  <div style={{ color: '#9ca3af', fontSize: '13px' }}>
+                    {doc.detail}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>

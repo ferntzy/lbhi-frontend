@@ -13,44 +13,51 @@ interface FounderData {
   quote: string
 }
 
-// Founder's Wall — edit these fields to update the dedication section.
-// Put the actual portrait at /public/images/founder-portrait.jpg (a square
-// or portrait-oriented photo, closely cropped on the face, works best
-// since it's displayed inside a circle).
 const founder: FounderData = {
   name: 'Dr. Lincoln Nelson',
-  title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-  years: '1923 - 2012',
+  title: 'Founding Physician',
+  years: '1923 – 2012',
   photo: '/images/founder-portrait.jpg',
   quote:
     'Healing is a calling, not a transaction — every patient who walks through our doors deserves dignity and care.',
 }
 
+// Timeline as story beats — keep descriptions short
 const timeline = [
   {
-    period: '1975',
+    year: '1975',
+    label: '1975',
     title: 'Hospital Established',
-    desc: 'Leyte Baptist Hospital was founded to provide affordable, compassionate healthcare to the communities of Southern Leyte, rooted in the Baptist tradition of service.',
+    desc: 'Leyte Baptist Hospital opens its doors to bring affordable, compassionate care to Southern Leyte.',
+    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&h=600&fit=crop&auto=format',
   },
   {
-    period: 'Early Years',
+    year: '1980s',
+    label: 'Early Years',
     title: 'Building the Foundation',
-    desc: 'The hospital grew its range of services and welcomed dedicated medical professionals committed to serving a growing patient community across the region.',
+    desc: 'Services expand and dedicated medical professionals join to serve a growing patient community.',
+    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=600&fit=crop&auto=format',
   },
   {
-    period: 'Growth Period',
-    title: 'Expanding Facilities & Departments',
-    desc: 'Significant expansions enabled the hospital to offer more specialized services, including laboratory, radiology, and dedicated maternal care departments.',
+    year: '1990s',
+    label: 'Growth',
+    title: 'Expanding Facilities',
+    desc: 'New departments — laboratory, radiology, and maternal care — strengthen what the hospital can offer.',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=600&fit=crop&auto=format',
   },
   {
-    period: 'Recent Years',
-    title: 'Strengthening Community Programs',
-    desc: 'LBH expanded its outreach through medical missions, vaccination drives, and community health education initiatives across Southern Leyte.',
+    year: '2010s',
+    label: 'Recent Years',
+    title: 'Community Programs',
+    desc: 'Medical missions, vaccination drives, and health education reach barangays across Southern Leyte.',
+    image: 'https://images.unsplash.com/photo-1652148439208-3e73641d0725?w=600&h=600&fit=crop&auto=format',
   },
   {
-    period: 'Today',
+    year: 'Today',
+    label: 'Today',
     title: 'Continuing the Mission',
-    desc: "Leyte Baptist Hospital serves thousands of patients each year, with a renewed focus on community health, patient-centered care, and accessible medicine for all.",
+    desc: 'Thousands of patients each year. Patient-centered care. Accessible medicine for all.',
+    image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=600&h=600&fit=crop&auto=format',
   },
 ]
 
@@ -60,7 +67,7 @@ const values = [
   { title: 'Excellence', desc: 'We strive for the highest standards of medical care, patient safety, and professional development at every level.' },
   { title: 'Service', desc: 'We are called to serve — our patients, our community, our staff, and one another without condition.' },
   { title: 'Respect', desc: 'We honor the dignity of every person who entrusts their care to us, regardless of background or circumstance.' },
-  { title: 'Community', desc: "We are part of the communities we serve, and everything we do is grounded in that relationship." },
+  { title: 'Community', desc: 'We are part of the communities we serve, and everything we do is grounded in that relationship.' },
 ]
 
 const leadership = [
@@ -70,27 +77,37 @@ const leadership = [
   { name: '[Finance Officer]', title: 'Finance Officer', dept: 'Finance & Administration' },
 ]
 
-type Tab = 'story' | 'mission' | 'leadership'
+// Height (in px) of the main fixed nav bar above this page.
+const STICKY_TOP = 64
+
+// ── Shared type scale ──────────────────────────────────────────
+// Every "eyebrow" label across the page uses this exact styling so
+// labels read as one consistent system, not one-off treatments.
+const eyebrowStyle = {
+  fontSize: '11.5px',
+  fontWeight: 700,
+  letterSpacing: '0.16em',
+  textTransform: 'uppercase' as const,
+  color: '#1a7f7a',
+}
 
 export default function AboutPage({ navigate }: Props) {
-  const [tab, setTab] = useState<Tab>('story')
   const [visible, setVisible] = useState(false)
-  const [ringHover, setRingHover] = useState(false)
   const [isNarrow, setIsNarrow] = useState(false)
+  const [windowWidth, setWindowWidth] = useState(1280)
+  const [timelineIndex, setTimelineIndex] = useState(0)
+  const [progress, setProgress] = useState(0) // 0..1 continuous scroll progress through the timeline section
   const founderRef = useRef<HTMLElement>(null)
+  const timelineSectionRef = useRef<HTMLDivElement>(null)
 
-  // Fade + lift the Founder's Wall into view the first time it scrolls
-  // into the viewport. Skips the animation for reduced-motion users.
   useEffect(() => {
     const el = founderRef.current
     if (!el) return
-
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) {
       setVisible(true)
       return
     }
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -100,551 +117,732 @@ export default function AboutPage({ navigate }: Props) {
           }
         })
       },
-      { threshold: 0.25 }
+      { threshold: 0.15 }
     )
     observer.observe(el)
     return () => observer.disconnect()
   }, [])
 
-  // Stack the portrait above the text on narrow screens.
   useEffect(() => {
-    const checkWidth = () => setIsNarrow(window.innerWidth <= 720)
+    const checkWidth = () => {
+      setIsNarrow(window.innerWidth <= 720)
+      setWindowWidth(window.innerWidth)
+    }
     checkWidth()
     window.addEventListener('resize', checkWidth)
     return () => window.removeEventListener('resize', checkWidth)
   }, [])
 
+  // Scroll-driven horizontal filmstrip: maps vertical scroll position within
+  // the pinned section to a continuous 0..1 progress value. The track itself
+  // is translated horizontally by this progress, so cards continuously slide
+  // in from outside the viewport rather than jumping between discrete states.
+  useEffect(() => {
+    const section = timelineSectionRef.current
+    if (!section) return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let ticking = false
+
+    const update = () => {
+      ticking = false
+      const rect = section.getBoundingClientRect()
+      const viewportH = window.innerHeight
+      const pinnedH = viewportH - STICKY_TOP
+      const scrollable = section.offsetHeight - pinnedH
+      if (scrollable <= 0) return
+
+      const scrolled = STICKY_TOP - rect.top
+      const p = Math.min(1, Math.max(0, scrolled / scrollable))
+      setProgress(p)
+      const idx = Math.min(timeline.length - 1, Math.round(p * (timeline.length - 1)))
+      setTimelineIndex(idx)
+    }
+
+    const onScroll = () => {
+      if (prefersReducedMotion) {
+        update()
+        return
+      }
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(update)
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    update()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isNarrow])
+
+  // Layout constants for the filmstrip — deterministic, no measuring needed
+  const ITEM_WIDTH = isNarrow ? 230 : 380
+  const GAP = isNarrow ? 40 : 110
+  const EDGE_SPACER = isNarrow ? Math.round(windowWidth * 0.3) : Math.round(windowWidth * 0.32)
+  const CIRCLE_SIZE = isNarrow ? 100 : 160
+  const ROW_H = isNarrow ? 150 : 195
+  const CIRCLE_WRAP_H = CIRCLE_SIZE + 28
+  const CARD_H = ROW_H * 2 + CIRCLE_WRAP_H
+  const LINE_TOP = ROW_H + CIRCLE_WRAP_H / 2
+
+  const trackWidth =
+    EDGE_SPACER * 2 + timeline.length * ITEM_WIDTH + (timeline.length - 1) * GAP
+  const maxOffset = Math.max(0, trackWidth - windowWidth)
+  const offset = progress * maxOffset
+  const fillWidth = Math.min(trackWidth, offset + windowWidth / 2)
+
+  const current = timeline[timelineIndex]
+
   return (
-    <div style={{ paddingTop: '64px' }}>
-      {/* Founder's Wall — dedication to our founding father, shown on every tab */}
+    <div>
+      {/* ── Founder's Wall — full viewport height, full bleed under transparent nav ── */}
       <section
         ref={founderRef}
         style={{
-          position: 'relative',
-          backgroundImage:
-            'linear-gradient(180deg, #0a1d38 0%, #0d2240 55%, #0f2747 100%), repeating-linear-gradient(115deg, rgba(184,146,90,0.05) 0px, rgba(184,146,90,0.05) 1px, transparent 1px, transparent 64px)',
-          padding: isNarrow ? '64px 20px 72px' : '88px 24px 96px',
-          overflow: 'hidden',
+          backgroundColor: '#0d2240',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          paddingTop: isNarrow ? '96px' : '64px',
+          paddingBottom: isNarrow ? '64px' : '64px',
+          paddingLeft: '24px',
+          paddingRight: '24px',
           opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(24px)',
-          transition: 'opacity 0.9s ease, transform 0.9s ease',
+          transform: visible ? 'translateY(0)' : 'translateY(16px)',
+          transition: 'opacity 0.85s ease, transform 0.85s ease',
         }}
       >
-        <div style={{ position: 'relative', maxWidth: '980px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%' }}>
           <div
             style={{
-              textAlign: 'center',
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.32em',
-              textTransform: 'uppercase',
+              ...eyebrowStyle,
               color: '#c9a26b',
-              marginBottom: '40px',
+              marginBottom: isNarrow ? '40px' : '56px',
+              textAlign: 'center',
             }}
           >
-            {/* <span
-              style={{
-                display: 'inline-block',
-                width: '28px',
-                height: '1px',
-                backgroundColor: '#c9a26b',
-                verticalAlign: 'middle',
-                marginRight: '14px',
-                opacity: 0.6,
-              }}
-            /> */}
             In Honor Of
-            {/* <span
-              style={{
-                display: 'inline-block',
-                width: '28px',
-                height: '1px',
-                backgroundColor: '#c9a26b',
-                verticalAlign: 'middle',
-                marginLeft: '14px',
-                opacity: 0.6,
-              }}
-            /> */}
           </div>
 
           <div
             style={{
               display: 'flex',
-              flexDirection: isNarrow ? 'column' : 'row',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              textAlign: isNarrow ? 'center' : 'left',
-              gap: isNarrow ? '28px' : '56px',
+              textAlign: 'center',
+              gap: isNarrow ? '36px' : '48px',
             }}
           >
-            {/* Portrait medallion */}
-            <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px' }}>
+            <div style={{ flexShrink: 0 }}>
               <div
-                onMouseEnter={() => setRingHover(true)}
-                onMouseLeave={() => setRingHover(false)}
                 style={{
-                  position: 'relative',
-                  width: '176px',
-                  height: '176px',
+                  width: isNarrow ? '180px' : '220px',
+                  height: isNarrow ? '180px' : '220px',
                   borderRadius: '50%',
-                  padding: '8px',
-                  background: 'conic-gradient(from 0deg, #b8925a, #e9c98f, #b8925a, #8a6a3d, #b8925a)',
-                  boxShadow: '0 0 0 1px rgba(201,162,107,0.35)',
-                  transform: ringHover ? 'scale(1.035)' : 'scale(1)',
-                  filter: ringHover ? 'brightness(1.12)' : 'brightness(1)',
-                  transition: 'transform 0.5s ease, filter 0.5s ease',
+                  overflow: 'hidden',
+                  border: '2px solid rgba(201,162,107,0.45)',
+                  backgroundColor: '#16305a',
+                  boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
                 }}
               >
                 <img
                   src={founder.photo}
                   alt={founder.name}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    display: 'block',
-                    backgroundColor: '#16305a',
-                    border: '3px solid #0d2240',
-                  }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
-              </div>
-              <div
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: '#0d2240',
-                  background: 'linear-gradient(135deg, #e9c98f, #b8925a)',
-                  padding: '6px 16px',
-                  borderRadius: '999px',
-                  boxShadow: '0 4px 14px rgba(184,146,90,0.25)',
-                }}
-              >
-                {founder.years}
               </div>
             </div>
 
-            {/* Divider */}
-            <div
-              style={
-                isNarrow
-                  ? { width: '64px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,162,107,0.4), transparent)' }
-                  : { width: '1px', minHeight: '120px', alignSelf: 'stretch', background: 'linear-gradient(180deg, transparent, rgba(201,162,107,0.4), transparent)' }
-              }
-            />
-
-            {/* Content */}
-            <div style={{ flex: '1 1 320px', minWidth: 0, maxWidth: isNarrow ? 'none' : '560px' }}>
+            <div style={{ maxWidth: '560px' }}>
               <h2
                 style={{
                   fontFamily: "'DM Serif Display', Georgia, serif",
-                  fontStyle: 'italic',
-                  fontSize: 'clamp(28px, 3.6vw, 40px)',
+                  fontSize: 'clamp(34px, 5.5vw, 52px)',
+                  fontWeight: 400,
                   color: '#ffffff',
-                  margin: '0 0 8px',
-                  lineHeight: 1.2,
+                  margin: '0 0 10px',
+                  lineHeight: 1.12,
                 }}
               >
                 {founder.name}
               </h2>
               <div
                 style={{
-                  fontSize: '13px',
+                  fontSize: '15px',
                   fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
                   color: '#7fe3e0',
-                  marginBottom: '20px',
+                  marginBottom: '6px',
                 }}
               >
                 {founder.title}
               </div>
+              <div
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  letterSpacing: '0.03em',
+                  color: 'rgba(255,255,255,0.4)',
+                  marginBottom: '32px',
+                }}
+              >
+                {founder.years}
+              </div>
               <p
                 style={{
                   fontFamily: "'DM Serif Display', Georgia, serif",
-                  fontSize: '18px',
+                  fontSize: isNarrow ? '19px' : '21px',
                   fontStyle: 'italic',
-                  lineHeight: 1.75,
-                  color: 'rgba(255,255,255,0.72)',
-                  margin: 0,
+                  fontWeight: 400,
+                  lineHeight: 1.6,
+                  color: 'rgba(255,255,255,0.75)',
+                  margin: '0 auto',
                 }}
               >
-                &ldquo;{founder.quote}&rdquo;
+                “{founder.quote}”
               </p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Page header */}
-      {/* <div style={{ backgroundColor: '#0d2240', padding: '72px 24px' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+        {/* Scroll cue — reinforces that there's more below the fold */}
+        {/* <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            bottom: '32px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            opacity: 0.5,
+          }}
+        >
           <div
             style={{
-              fontSize: '11px',
+              fontSize: '10px',
               fontWeight: 700,
-              letterSpacing: '0.14em',
+              letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#7fe3e0',
-              marginBottom: '12px',
+              color: 'rgba(255,255,255,0.6)',
             }}
           >
-            Who We Are
+            Scroll
           </div>
-          <h1
+          <div
+            style={{
+              width: '1px',
+              height: '28px',
+              background: 'linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)',
+            }}
+          />
+        </div> */}
+      </section>
+
+      {/* Intro copy — short */}
+      <section style={{ padding: '72px 24px 48px', backgroundColor: '#ffffff' }}>
+        <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+          <div style={{ ...eyebrowStyle, marginBottom: '16px' }}>Since 1975</div>
+          <h2
             style={{
               fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: 'clamp(32px, 5vw, 52px)',
-              color: '#ffffff',
-              margin: '0 0 16px',
+              fontSize: 'clamp(30px, 4vw, 40px)',
+              fontWeight: 400,
+              color: '#0d2240',
+              margin: '0 0 20px',
               lineHeight: 1.15,
             }}
           >
-            About Leyte Baptist Hospital
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.58)', maxWidth: '580px', lineHeight: 1.75, fontSize: '15px', margin: 0 }}>
-            A community hospital dedicated to delivering accessible, professional, and compassionate
-            healthcare to the people of Southern Leyte.
+            Our Story
+          </h2>
+          <p style={{ color: '#4b5563', lineHeight: 1.8, fontSize: '17px', margin: 0, fontWeight: 400 }}>
+            Leyte Baptist Hospital was founded on the conviction that quality healthcare should
+            be accessible to all. From a modest beginning, we have grown into a trusted community
+            hospital serving families across Hilongos and Southern Leyte.
           </p>
         </div>
-      </div> */}
+      </section>
 
-      {/* Tab nav */}
-      <div
+      {/* ── Continuous horizontal filmstrip timeline ── */}
+      <section
+        ref={timelineSectionRef}
         style={{
           backgroundColor: '#ffffff',
-          borderBottom: '1px solid #f3f4f6',
-          position: 'sticky',
-          top: '64px',
-          zIndex: 40,
+          position: 'relative',
+          height: `${timeline.length * 85}vh`,
+          borderTop: '1px solid #eef0f2',
+          borderBottom: '1px solid #eef0f2',
         }}
       >
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex' }}>
-          {([
-            { id: 'story', label: 'Our Story' },
-            { id: 'mission', label: 'Mission & Values' },
-            { id: 'leadership', label: 'Leadership' },
-          ] as { id: Tab; label: string }[]).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              style={{
-                padding: '16px 20px',
-                fontSize: '13px',
-                fontWeight: 500,
-                border: 'none',
-                borderBottom: tab === t.id ? '2px solid #1a7f7a' : '2px solid transparent',
-                background: 'none',
-                cursor: 'pointer',
-                color: tab === t.id ? '#1a7f7a' : '#6b7280',
-                transition: 'color 0.15s, border-color 0.15s',
-                marginBottom: '-1px',
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Story */}
-      {tab === 'story' && (
-        <section style={{ padding: '72px 24px', backgroundColor: '#ffffff' }}>
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <h2
+        <div
+          style={{
+            position: 'sticky',
+            top: `${STICKY_TOP}px`,
+            height: `calc(100vh - ${STICKY_TOP}px)`,
+            minHeight: '640px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Floating "now viewing" label — fixed in place, updates with progress */}
+          <div
+            style={{
+              position: 'absolute',
+              top: isNarrow ? '28px' : '40px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              textAlign: 'center',
+              zIndex: 3,
+              pointerEvents: 'none',
+            }}
+          >
+            <div style={{ ...eyebrowStyle, marginBottom: '10px' }}>Our History</div>
+            <div
               style={{
                 fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '32px',
+                fontSize: isNarrow ? '24px' : '32px',
+                fontWeight: 400,
                 color: '#0d2240',
-                marginBottom: '24px',
+                lineHeight: 1.2,
+                transition: 'opacity 0.3s ease',
               }}
             >
-              Our Story
-            </h2>
-            <p style={{ color: '#4b5563', lineHeight: 1.8, fontSize: '16px', marginBottom: '16px' }}>
-              Leyte Baptist Hospital has its roots in the conviction that quality healthcare should be
-              accessible to all — regardless of economic status, location, or circumstance. From its
-              founding, the hospital has been driven by a spirit of service that goes beyond clinical
-              care.
-            </p>
-            <p style={{ color: '#4b5563', lineHeight: 1.8, marginBottom: '56px' }}>
-              Over the decades, we have grown from a modest facility into a trusted community hospital,
-              serving families across Hilongos and Southern Leyte. Through typhoons, public health
-              emergencies, and the evolving needs of our community, we have remained committed to being
-              present when our community needs us most.
-            </p>
+              {current.title}
+            </div>
+          </div>
 
-            <h3
+          {/* Horizontally scrolling track */}
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: `${CARD_H}px`,
+              overflow: 'visible',
+            }}
+          >
+            <div
               style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '24px',
-                color: '#0d2240',
-                marginBottom: '36px',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                height: `${CARD_H}px`,
+                width: `${trackWidth}px`,
+                display: 'flex',
+                alignItems: 'stretch',
+                transform: `translateX(${-offset}px)`,
+                willChange: 'transform',
               }}
             >
-              Hospital Timeline
-            </h3>
+              {/* leading spacer so the first card enters from off-screen */}
+              <div style={{ flex: `0 0 ${EDGE_SPACER}px` }} />
 
-            <div style={{ position: 'relative' }}>
-              {/* Timeline line */}
+              {/* base connecting line, spans the whole track */}
               <div
                 style={{
                   position: 'absolute',
-                  left: '20px',
-                  top: '24px',
-                  bottom: '24px',
-                  width: '1px',
-                  backgroundColor: '#d1eeec',
+                  top: `${LINE_TOP}px`,
+                  left: 0,
+                  width: `${trackWidth}px`,
+                  height: '2px',
+                  backgroundColor: '#e5e7eb',
+                }}
+              />
+              {/* filled progress overlay on the line — flat color, no glow */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: `${LINE_TOP}px`,
+                  left: 0,
+                  width: `${fillWidth}px`,
+                  height: '2px',
+                  backgroundColor: '#1a7f7a',
                 }}
               />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-                {timeline.map((item, i) => (
-                  <div key={i} style={{ position: 'relative', paddingLeft: '56px' }}>
+              {timeline.map((step, i) => {
+                const contentBelow = i % 2 === 0
+                const reached = i <= timelineIndex
+                const active = i === timelineIndex
+                return (
+                  <div
+                    key={step.label}
+                    style={{
+                      flex: `0 0 ${ITEM_WIDTH}px`,
+                      marginRight: i < timeline.length - 1 ? `${GAP}px` : 0,
+                      display: 'grid',
+                      gridTemplateRows: `${ROW_H}px ${CIRCLE_WRAP_H}px ${ROW_H}px`,
+                      position: 'relative',
+                    }}
+                  >
+                    {/* top row */}
                     <div
                       style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: '4px',
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        backgroundColor: '#ffffff',
-                        border: '2px solid #d1eeec',
                         display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        textAlign: 'center',
+                        paddingBottom: '24px',
+                        opacity: contentBelow ? 0 : reached ? 1 : 0.4,
+                        transition: 'opacity 0.4s ease',
                       }}
                     >
+                      {!contentBelow && (
+                        <>
+                          <div
+                            style={{
+                              fontSize: '12.5px',
+                              fontWeight: 700,
+                              letterSpacing: '0.1em',
+                              textTransform: 'uppercase',
+                              color: active ? '#1a7f7a' : '#9ca3af',
+                              marginBottom: '10px',
+                              transition: 'color 0.35s ease',
+                            }}
+                          >
+                            {step.label}
+                          </div>
+                          <h3
+                            style={{
+                              fontFamily: "'DM Serif Display', Georgia, serif",
+                              fontSize: isNarrow ? '23px' : '29px',
+                              fontWeight: 400,
+                              color: '#0d2240',
+                              margin: '0 0 12px',
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {step.title}
+                          </h3>
+                          <p
+                            style={{
+                              fontSize: isNarrow ? '14.5px' : '16px',
+                              fontWeight: 400,
+                              color: '#6b7280',
+                              lineHeight: 1.65,
+                              margin: 0,
+                              maxWidth: `${ITEM_WIDTH - 10}px`,
+                            }}
+                          >
+                            {step.desc}
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* middle row: node + photo, sitting directly on the line */}
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div
                         style={{
-                          width: '10px',
-                          height: '10px',
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: `${CIRCLE_SIZE}px`,
+                          height: `${CIRCLE_SIZE}px`,
                           borderRadius: '50%',
-                          backgroundColor: '#1a7f7a',
+                          overflow: 'hidden',
+                          border: active ? '3px solid #1a7f7a' : '3px solid #e5e7eb',
+                          boxShadow: active
+                            ? '0 0 0 8px rgba(26,127,122,0.10), 0 14px 34px rgba(13,34,64,0.14)'
+                            : '0 8px 22px rgba(13,34,64,0.10)',
+                          backgroundColor: '#e5e7eb',
+                          transition: 'border 0.35s ease, box-shadow 0.35s ease',
+                          filter: reached ? 'none' : 'grayscale(55%)',
+                          opacity: reached ? 1 : 0.6,
+                        }}
+                      >
+                        <img
+                          src={step.image}
+                          alt={step.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
+                      </div>
+
+                      {/* small node dot on the line */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: `calc(50% + ${CIRCLE_SIZE / 2 + 16}px)`,
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: active ? '14px' : '10px',
+                          height: active ? '14px' : '10px',
+                          borderRadius: '50%',
+                          backgroundColor: reached ? '#1a7f7a' : '#ffffff',
+                          border: '2px solid ' + (reached ? '#1a7f7a' : '#d1d5db'),
+                          transition: 'all 0.35s ease',
                         }}
                       />
                     </div>
+
+                    {/* bottom row */}
                     <div
                       style={{
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        color: '#1a7f7a',
-                        marginBottom: '6px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        paddingTop: '24px',
+                        opacity: contentBelow ? (reached ? 1 : 0.4) : 0,
+                        transition: 'opacity 0.4s ease',
                       }}
                     >
-                      {item.period}
+                      {contentBelow && (
+                        <>
+                          <div
+                            style={{
+                              fontSize: '12.5px',
+                              fontWeight: 700,
+                              letterSpacing: '0.1em',
+                              textTransform: 'uppercase',
+                              color: active ? '#1a7f7a' : '#9ca3af',
+                              marginBottom: '10px',
+                              transition: 'color 0.35s ease',
+                            }}
+                          >
+                            {step.label}
+                          </div>
+                          <h3
+                            style={{
+                              fontFamily: "'DM Serif Display', Georgia, serif",
+                              fontSize: isNarrow ? '23px' : '29px',
+                              fontWeight: 400,
+                              color: '#0d2240',
+                              margin: '0 0 12px',
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {step.title}
+                          </h3>
+                          <p
+                            style={{
+                              fontSize: isNarrow ? '14.5px' : '16px',
+                              fontWeight: 400,
+                              color: '#6b7280',
+                              lineHeight: 1.65,
+                              margin: 0,
+                              maxWidth: `${ITEM_WIDTH - 10}px`,
+                            }}
+                          >
+                            {step.desc}
+                          </p>
+                        </>
+                      )}
                     </div>
-                    <h4
-                      style={{
-                        fontFamily: "'DM Serif Display', Georgia, serif",
-                        fontSize: '20px',
-                        color: '#0d2240',
-                        margin: '0 0 8px',
-                      }}
-                    >
-                      {item.title}
-                    </h4>
-                    <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: 1.7, margin: 0 }}>
-                      {item.desc}
-                    </p>
                   </div>
-                ))}
-              </div>
+                )
+              })}
+
+              {/* trailing spacer so the last card exits toward off-screen too */}
+              <div style={{ flex: `0 0 ${EDGE_SPACER}px` }} />
             </div>
           </div>
-        </section>
-      )}
 
-      {/* Mission & Values */}
-      {tab === 'mission' && (
-        <section style={{ padding: '72px 24px', backgroundColor: '#ffffff' }}>
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          {/* Overall progress bar — pinned to bottom of the section */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              width: '100%',
+              height: '3px',
+              backgroundColor: '#f0f2f4',
+            }}
+          >
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '24px',
-                marginBottom: '64px',
+                height: '100%',
+                width: `${progress * 100}%`,
+                backgroundColor: '#1a7f7a',
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Mission & Values ── */}
+      <section style={{ padding: '88px 24px 100px', backgroundColor: '#ffffff' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '56px' }}>
+            <div style={{ ...eyebrowStyle, marginBottom: '18px' }}>Mission</div>
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontSize: 'clamp(23px, 3vw, 29px)',
+                fontWeight: 400,
+                color: '#0d2240',
+                lineHeight: 1.4,
+                fontStyle: 'italic',
+                margin: 0,
               }}
             >
-              {[
-                {
-                  label: 'Mission',
-                  text: '[Mission statement placeholder — to be provided by hospital administration and updated through the CMS.]',
-                },
-                {
-                  label: 'Vision',
-                  text: '[Vision statement placeholder — to be provided by hospital administration and updated through the CMS.]',
-                },
-              ].map((item) => (
+              “[Mission statement placeholder — to be provided by hospital administration.]”
+            </p>
+          </div>
+
+          <div
+            style={{
+              marginBottom: '80px',
+              paddingBottom: '64px',
+              borderBottom: '1px solid #eef0f2',
+            }}
+          >
+            <div style={{ ...eyebrowStyle, marginBottom: '18px' }}>Vision</div>
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontSize: 'clamp(23px, 3vw, 29px)',
+                fontWeight: 400,
+                color: '#0d2240',
+                lineHeight: 1.4,
+                fontStyle: 'italic',
+                margin: 0,
+              }}
+            >
+              “[Vision statement placeholder — to be provided by hospital administration.]”
+            </p>
+          </div>
+
+          <div style={{ ...eyebrowStyle, marginBottom: '16px' }}>What Guides Us</div>
+          <h3
+            style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: 'clamp(26px, 3.4vw, 32px)',
+              fontWeight: 400,
+              color: '#0d2240',
+              margin: '0 0 44px',
+              lineHeight: 1.2,
+            }}
+          >
+            Core Values
+          </h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {values.map((value) => (
+              <div
+                key={value.title}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isNarrow ? '1fr' : '180px 1fr',
+                  gap: isNarrow ? '6px' : '32px',
+                  padding: '26px 0',
+                  borderTop: '1px solid #eef0f2',
+                }}
+              >
                 <div
-                  key={item.label}
                   style={{
-                    padding: '36px',
-                    backgroundColor: '#f5f7f9',
-                    borderLeft: '3px solid #1a7f7a',
+                    fontFamily: "'DM Serif Display', Georgia, serif",
+                    fontWeight: 400,
+                    color: '#0d2240',
+                    fontSize: '18px',
+                    lineHeight: 1.4,
                   }}
                 >
+                  {value.title}
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '15.5px', lineHeight: 1.75, fontWeight: 400 }}>
+                  {value.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Leadership ── */}
+      <section style={{ padding: '88px 24px 100px', backgroundColor: '#f5f7f9' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+          <div style={{ ...eyebrowStyle, marginBottom: '18px' }}>Our Team</div>
+          <h2
+            style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: 'clamp(30px, 4vw, 40px)',
+              fontWeight: 400,
+              color: '#0d2240',
+              margin: '0 0 20px',
+              lineHeight: 1.15,
+            }}
+          >
+            Hospital Leadership
+          </h2>
+          <p style={{ color: '#6b7280', marginBottom: '60px', lineHeight: 1.8, fontSize: '16px', fontWeight: 400, maxWidth: '560px' }}>
+            Our leadership team guides Leyte Baptist Hospital with a commitment to excellence,
+            compassion, and service to the community of Southern Leyte.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {leadership.map((person) => (
+              <div
+                key={person.name}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isNarrow ? '1fr' : '1fr auto',
+                  gap: isNarrow ? '6px' : '24px',
+                  padding: '30px 0',
+                  borderTop: '1px solid #e2e5e9',
+                  alignItems: 'baseline',
+                }}
+              >
+                <div>
                   <div
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      color: '#1a7f7a',
-                      marginBottom: '16px',
-                    }}
-                  >
-                    {item.label}
-                  </div>
-                  <p
                     style={{
                       fontFamily: "'DM Serif Display', Georgia, serif",
-                      fontSize: '20px',
+                      fontWeight: 400,
+                      fontSize: '21px',
                       color: '#0d2240',
-                      lineHeight: 1.6,
-                      fontStyle: 'italic',
-                      margin: 0,
+                      marginBottom: '6px',
+                      lineHeight: 1.3,
                     }}
                   >
-                    "{item.text}"
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <h3
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '28px',
-                color: '#0d2240',
-                marginBottom: '32px',
-              }}
-            >
-              Core Values
-            </h3>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: '16px',
-              }}
-            >
-              {values.map((value) => (
-                <div
-                  key={value.title}
-                  style={{
-                    display: 'flex',
-                    gap: '16px',
-                    padding: '20px',
-                    border: '1px solid #f3f4f6',
-                    borderRadius: '2px',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '3px',
-                      flexShrink: 0,
-                      backgroundColor: '#1a7f7a',
-                      borderRadius: '2px',
-                      alignSelf: 'stretch',
-                    }}
-                  />
-                  <div>
-                    <div style={{ fontWeight: 600, color: '#0d2240', marginBottom: '6px', fontSize: '14px' }}>
-                      {value.title}
-                    </div>
-                    <div style={{ color: '#6b7280', fontSize: '13px', lineHeight: 1.7 }}>{value.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Leadership */}
-      {tab === 'leadership' && (
-        <section style={{ padding: '72px 24px', backgroundColor: '#ffffff' }}>
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-            <h2
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '32px',
-                color: '#0d2240',
-                marginBottom: '12px',
-              }}
-            >
-              Hospital Leadership
-            </h2>
-            <p style={{ color: '#6b7280', marginBottom: '48px', lineHeight: 1.75, fontSize: '15px' }}>
-              Our leadership team guides Leyte Baptist Hospital with a commitment to excellence, compassion, and service to the community of Southern Leyte.
-            </p>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '32px',
-              }}
-            >
-              {leadership.map((person) => (
-                <div key={person.name} style={{ textAlign: 'center' }}>
-                  <div
-                    style={{
-                      width: '88px',
-                      height: '88px',
-                      borderRadius: '50%',
-                      backgroundColor: '#f5f7f9',
-                      border: '3px solid #ffffff',
-                      boxShadow: '0 2px 12px rgba(13,34,64,0.1)',
-                      margin: '0 auto 16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" style={{ color: '#d1d5db' }}>
-                      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <div style={{ fontWeight: 600, color: '#0d2240', fontSize: '14px', marginBottom: '4px' }}>
                     {person.name}
                   </div>
-                  <div style={{ color: '#1a7f7a', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>
+                  <div
+                    style={{
+                      color: '#1a7f7a',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      letterSpacing: '0.01em',
+                    }}
+                  >
                     {person.title}
                   </div>
-                  <div style={{ color: '#9ca3af', fontSize: '12px' }}>{person.dept}</div>
-                  <div style={{ color: '#d1d5db', fontSize: '11px', fontStyle: 'italic', marginTop: '6px' }}>
-                    Placeholder — update via CMS
-                  </div>
                 </div>
-              ))}
-            </div>
-
-            <div
-              style={{
-                marginTop: '56px',
-                padding: '24px',
-                backgroundColor: '#f5f7f9',
-                borderRadius: '2px',
-                fontSize: '13px',
-                color: '#9ca3af',
-                lineHeight: 1.7,
-              }}
-            >
-              Leadership profiles and photographs will be updated by authorized administrators through the hospital CMS. Contact the administration office to submit updated information.
-            </div>
+                <div
+                  style={{
+                    color: '#9ca3af',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    textAlign: isNarrow ? 'left' : 'right',
+                  }}
+                >
+                  {person.dept}
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+
+          <p
+            style={{
+              marginTop: '52px',
+              fontSize: '13px',
+              fontStyle: 'italic',
+              color: '#b0b6bd',
+              lineHeight: 1.6,
+            }}
+          >
+            Leadership names and photographs will be updated by authorized administrators.
+          </p>
+        </div>
+      </section>
     </div>
   )
 }
