@@ -409,6 +409,94 @@ export default function HomePage({ navigate }: Props) {
         </div>
       </section>
 
+      {/* ── Our Faith teaser ── */}
+      <section style={{ backgroundColor: '#0d2240', padding: '96px 24px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '56px',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: '#c9a45c',
+                  marginBottom: '20px',
+                }}
+              >
+                Our Faith
+              </div>
+              <h2
+                style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: 'clamp(28px, 4vw, 40px)',
+                  color: '#ffffff',
+                  lineHeight: 1.2,
+                  margin: '0 0 20px',
+                  maxWidth: '480px',
+                }}
+              >
+                A ministry that happens to practice medicine.
+              </h2>
+              <p
+                style={{
+                  color: 'rgba(255,255,255,0.65)',
+                  fontSize: '15px',
+                  lineHeight: 1.8,
+                  margin: '0 0 32px',
+                  maxWidth: '440px',
+                }}
+              >
+                We were founded to bring healing in the name of Christ — and that conviction still
+                shapes how we care for every patient, of every faith, who walks through our doors.
+              </p>
+              <button
+                onClick={() => navigate('faith')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#7fe3e0',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                Read about our mission →
+              </button>
+            </div>
+
+            <div
+              style={{
+                borderLeft: '2px solid rgba(255,255,255,0.15)',
+                paddingLeft: '32px',
+              }}
+            >
+              <blockquote
+                style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontSize: 'clamp(20px, 2.6vw, 26px)',
+                  color: '#ffffff',
+                  lineHeight: 1.5,
+                  margin: '0 0 16px',
+                  fontStyle: 'italic',
+                }}
+              >
+                "He heals the brokenhearted and binds up their wounds."
+              </blockquote>
+              <div style={{ color: '#7fe3e0', fontSize: '13px', fontWeight: 600 }}>Psalm 147:3</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Why patients choose us ── */}
       <section style={{ backgroundColor: '#ffffff', padding: '96px 0 80px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px' }}>

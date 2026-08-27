@@ -11,7 +11,7 @@ import NewsPage from './pages/NewsPage'
 import SuccessStoriesPage from './pages/SuccessStoriesPage'
 import CommunityPage from './pages/CommunityPage'
 import ContactPage from './pages/ContactPage'
-
+import FaithPage from './pages/FaithPage'
 export type Page =
   | 'home'
   | 'about'
@@ -23,6 +23,7 @@ export type Page =
   | 'stories'
   | 'community'
   | 'contact'
+  | 'faith'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home')
@@ -54,6 +55,8 @@ export default function App() {
         return <CommunityPage navigate={navigate} />
       case 'contact':
         return <ContactPage navigate={navigate} />
+      case 'faith':
+        return <FaithPage navigate={navigate} />
       default:
         return <HomePage navigate={navigate} />
     }
