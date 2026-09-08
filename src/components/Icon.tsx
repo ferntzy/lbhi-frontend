@@ -15,7 +15,17 @@ export type IconName =
   | 'handshake'
 
 export default function Icon({ name, className, size = 20 }: { name: IconName; className?: string; size?: number }) {
-  const props = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', className }
+  const props: React.SVGProps<SVGSVGElement> = {
+    width: size,
+    height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.5,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    className,
+  }
 
   switch (name) {
     case 'ambulance':

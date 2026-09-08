@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
@@ -6,31 +6,94 @@ import AboutPage from './pages/AboutPage'
 import ServicesPage from './pages/ServicesPage'
 import DoctorsPage from './pages/DoctorsPage'
 import DepartmentsPage from './pages/DepartmentsPage'
+import CentersPage from './pages/CentersPage'
 import OrgChartPage from './pages/OrgChartPage'
 import NewsPage from './pages/NewsPage'
 import SuccessStoriesPage from './pages/SuccessStoriesPage'
 import CommunityPage from './pages/CommunityPage'
 import ContactPage from './pages/ContactPage'
 import FaithPage from './pages/FaithPage'
+import NotFoundPage from './pages/NotFoundPage'
+import CookieConsent from './components/CookieConsent'
+import LegalConsentModal from './components/LegalConsentModal'
 export type Page =
   | 'home'
   | 'about'
   | 'services'
   | 'doctors'
   | 'departments'
+  | 'centers'
   | 'org'
   | 'news'
   | 'stories'
   | 'community'
   | 'contact'
   | 'faith'
+  | 'not-found'
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home')
+  const pageFromPath = (): Page => {
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, '')
+    const routes: Record<string, Page> = {
+      '': 'home',
+      home: 'home',
+      about: 'about',
+      services: 'services',
+      doctors: 'doctors',
+      departments: 'departments',
+      centers: 'centers',
+      org: 'org',
+      news: 'news',
+      stories: 'stories',
+      community: 'community',
+      contact: 'contact',
+      faith: 'faith',
+    }
+    return routes[path] ?? 'not-found'
+  }
 
-  const navigate = (page: Page) => {
+  const [currentPage, setCurrentPage] = useState<Page>(pageFromPath)
+  const [legalConsentChecked, setLegalConsentChecked] = useState(false)
+  const [legalConsentReady, setLegalConsentReady] = useState(false)
+  const [openLegalDocument, setOpenLegalDocument] = useState<'privacy' | 'terms' | null>(null)
+
+  useEffect(() => {
+    setLegalConsentChecked(window.localStorage.getItem('lbhi-legal-consent') === 'accepted')
+    setLegalConsentReady(true)
+  }, [])
+
+  const navigate = (page: Page, replace = false) => {
     setCurrentPage(page)
+    const method = replace ? 'replaceState' : 'pushState'
+    const paths: Partial<Record<Page, string>> = {
+      home: '/',
+    }
+    window.history[method]({}, '', paths[page] ?? `/${page}`)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    const onPopState = () => setCurrentPage(pageFromPath())
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  if (!legalConsentReady || !legalConsentChecked) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
+        <div aria-hidden="true" style={{ filter: 'blur(5px)', minHeight: '100vh', opacity: 0.78, pointerEvents: 'none', transform: 'scale(1.01)' }}>
+          <Navigation currentPage="home" navigate={navigate} />
+          <main><HomePage navigate={navigate} /></main>
+          <Footer navigate={navigate} />
+        </div>
+        <LegalConsentModal
+          onAccept={() => {
+            window.localStorage.setItem('lbhi-legal-consent', 'accepted')
+            setLegalConsentChecked(true)
+          }}
+        />
+      </div>
+    )
   }
 
   const renderPage = () => {
@@ -45,6 +108,8 @@ export default function App() {
         return <DoctorsPage navigate={navigate} />
       case 'departments':
         return <DepartmentsPage navigate={navigate} />
+      case 'centers':
+        return <CentersPage navigate={navigate} />
       case 'org':
         return <OrgChartPage navigate={navigate} />
       case 'news':
@@ -57,8 +122,10 @@ export default function App() {
         return <ContactPage navigate={navigate} />
       case 'faith':
         return <FaithPage navigate={navigate} />
+      case 'not-found':
+        return <NotFoundPage navigate={navigate} />
       default:
-        return <HomePage navigate={navigate} />
+        return <NotFoundPage navigate={navigate} />
     }
   }
 
@@ -66,7 +133,11 @@ export default function App() {
     <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
       <Navigation currentPage={currentPage} navigate={navigate} />
       <main>{renderPage()}</main>
-      <Footer navigate={navigate} />
+      <Footer navigate={navigate} onOpenLegal={setOpenLegalDocument} />
+      <CookieConsent navigate={navigate} onOpenLegal={setOpenLegalDocument} />
+      {openLegalDocument && (
+        <LegalConsentModal mode="view" initialDocument={openLegalDocument} onClose={() => setOpenLegalDocument(null)} />
+      )}
     </div>
   )
 }

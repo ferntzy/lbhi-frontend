@@ -2,6 +2,7 @@ import type { Page } from '../App'
 
 interface Props {
   navigate: (page: Page) => void
+  onOpenLegal?: (page: 'privacy' | 'terms') => void
 }
 
 const exploreLinks: { label: string; page: Page }[] = [
@@ -18,7 +19,7 @@ const infoLinks: { label: string; page: Page }[] = [
   { label: 'Community & Outreach', page: 'community' },
 ]
 
-const legalLinks = ['Privacy Policy', 'Terms of Use', 'Website Information']
+const legalLink = { label: 'Privacy & Terms' }
 
 const INK_DEEP = '#081729'
 const GOLD = '#c9a45c'
@@ -81,7 +82,7 @@ function NavColumn({
   )
 }
 
-export default function Footer({ navigate }: Props) {
+export default function Footer({ navigate, onOpenLegal }: Props) {
   return (
     <footer style={{ position: 'relative', backgroundColor: INK_DEEP, color: '#ffffff', overflow: 'hidden' }}>
       {/* ── Verse – seamless top of footer ── */}
@@ -332,9 +333,10 @@ export default function Footer({ navigate }: Props) {
             © {new Date().getFullYear()} Leyte Baptist Hospital. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: '28px' }}>
-            {legalLinks.map((label) => (
+            {[legalLink].map(({ label }) => (
               <button
                 key={label}
+                onClick={() => onOpenLegal?.('privacy')}
                 className="footer-link"
                 style={{
                   background: 'none',

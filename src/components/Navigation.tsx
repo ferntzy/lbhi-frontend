@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Page } from '../../App'
+import type { Page } from '../App'
 
 interface Props {
   currentPage: Page
@@ -36,6 +36,7 @@ const navGroups: NavGroup[] = [
       { label: 'Services', page: 'services' },
       { label: 'Doctors', page: 'doctors' },
       { label: 'Departments', page: 'departments' },
+      { label: 'Centers', page: 'centers' },
     ],
   },
   {
@@ -220,7 +221,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
                       letterSpacing: '0.005em',
                     }}
                   >
-                    Leyte Baptist Hospital
+                    Leyte Baptist Hospital, Inc.
                   </div>
                   <div
                     style={{
