@@ -34,7 +34,7 @@ const posts = [
   },
   {
     id: 3,
-    category: 'Health Campaign',
+    category: 'Health Campaign.',
     date: 'July 5, 2025',
     title: 'Free Dengue Awareness and Vaccination Campaign This August',
     excerpt:
