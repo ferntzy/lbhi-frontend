@@ -60,7 +60,7 @@ const centers = [
       '24-hour emergency response',
       'Patient counseling and monitoring',
     ],
-    schedule: '24 hours daily, 7 days a week',
+    schedule: '24/7',
     contact: '(053) XXX-XXXX (Emergency)',
     eligibility: 'All animal bite victims (no referral needed)',
     philhealthLink: 'https://www.philhealth.gov.ph/partners/providers/facilities/accredited/ABPP_073126.pdf',
