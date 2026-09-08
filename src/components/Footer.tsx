@@ -203,7 +203,7 @@ export default function Footer({ navigate, onOpenLegal }: Props) {
                 maxWidth: '320px',
               }}
             >
-              Serving the people of Southern Leyte with compassionate, accessible, and professional healthcare
+              Serving the people with compassionate, accessible, and professional healthcare
               since our founding.
             </p>
 
