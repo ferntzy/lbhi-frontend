@@ -60,7 +60,7 @@ const posts = [
   },
   {
     id: 5,
-    category: 'Event.',
+    category: 'Event',
     date: 'June 10, 2025',
     title: 'Annual Hospital Family Day — A Celebration of Our Team',
     excerpt:
