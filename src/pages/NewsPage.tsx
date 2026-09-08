@@ -8,7 +8,7 @@ interface Props {
 const posts = [
   {
     id: 1,
-    category: 'Community Outreach.',
+    category: 'Community Outreach',
     date: 'July 28, 2025',
     title: 'Medical Mission Brings Free Healthcare to Barangay Imelda',
     excerpt:
