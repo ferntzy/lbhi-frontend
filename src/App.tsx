@@ -53,14 +53,7 @@ export default function App() {
   }
 
   const [currentPage, setCurrentPage] = useState<Page>(pageFromPath)
-  const [legalConsentChecked, setLegalConsentChecked] = useState(false)
-  const [legalConsentReady, setLegalConsentReady] = useState(false)
   const [openLegalDocument, setOpenLegalDocument] = useState<'privacy' | 'terms' | null>(null)
-
-  useEffect(() => {
-    setLegalConsentChecked(window.localStorage.getItem('lbhi-legal-consent') === 'accepted')
-    setLegalConsentReady(true)
-  }, [])
 
   const navigate = (page: Page, replace = false) => {
     setCurrentPage(page)
@@ -77,24 +70,6 @@ export default function App() {
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
-
-  if (!legalConsentReady || !legalConsentChecked) {
-    return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
-        <div aria-hidden="true" style={{ filter: 'blur(5px)', minHeight: '100vh', opacity: 0.78, pointerEvents: 'none', transform: 'scale(1.01)' }}>
-          <Navigation currentPage="home" navigate={navigate} />
-          <main><HomePage navigate={navigate} /></main>
-          <Footer navigate={navigate} />
-        </div>
-        <LegalConsentModal
-          onAccept={() => {
-            window.localStorage.setItem('lbhi-legal-consent', 'accepted')
-            setLegalConsentChecked(true)
-          }}
-        />
-      </div>
-    )
-  }
 
   const renderPage = () => {
     switch (currentPage) {

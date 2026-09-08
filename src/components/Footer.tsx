@@ -19,7 +19,10 @@ const infoLinks: { label: string; page: Page }[] = [
   { label: 'Community & Outreach', page: 'community' },
 ]
 
-const legalLink = { label: 'Privacy & Terms' }
+const legalLinks: { label: string; page: 'privacy' | 'terms' }[] = [
+  { label: 'Privacy Policy', page: 'privacy' },
+  { label: 'Terms & Conditions', page: 'terms' },
+]
 
 const INK_DEEP = '#081729'
 const GOLD = '#c9a45c'
@@ -164,7 +167,7 @@ export default function Footer({ navigate, onOpenLegal }: Props) {
               <img
                 src="/images/lbhi_logo.png"
                 alt="Leyte Baptist Hospital logo"
-                style={{ width: '40px', height: '40px', objectFit: 'contain', flexShrink: 0 }}
+                style={{ width: '100px', height: '100px', objectFit: 'contain', flexShrink: 0 }}
               />
               <div>
                 <div
@@ -187,7 +190,7 @@ export default function Footer({ navigate, onOpenLegal }: Props) {
                     marginTop: '2px',
                   }}
                 >
-                  Hilongos, Leyte
+                 R.V. Fulache Street, Barangay Eastern, Hilongos, Leyte, 6524
                 </div>
               </div>
             </div>
@@ -333,10 +336,10 @@ export default function Footer({ navigate, onOpenLegal }: Props) {
             © {new Date().getFullYear()} Leyte Baptist Hospital. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: '28px' }}>
-            {[legalLink].map(({ label }) => (
+            {legalLinks.map(({ label, page }) => (
               <button
                 key={label}
-                onClick={() => onOpenLegal?.('privacy')}
+                onClick={() => onOpenLegal?.(page)}
                 className="footer-link"
                 style={{
                   background: 'none',

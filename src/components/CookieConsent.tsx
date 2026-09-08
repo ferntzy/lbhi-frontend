@@ -34,7 +34,8 @@ export default function CookieConsent({ navigate, onOpenLegal }: Props) {
       <div style={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '16px' }}>
         <button onClick={() => saveChoice('accepted')} style={{ backgroundColor: '#1a7f7a', border: 0, color: '#ffffff', cursor: 'pointer', fontSize: '13px', fontWeight: 700, padding: '11px 16px' }}>Accept cookies</button>
         <button onClick={() => saveChoice('declined')} style={{ backgroundColor: '#eef6f6', border: 0, color: '#136260', cursor: 'pointer', fontSize: '13px', fontWeight: 700, padding: '11px 16px' }}>Decline optional</button>
-        <button onClick={() => onOpenLegal?.('privacy')} style={{ background: 'none', border: 0, color: '#136260', cursor: 'pointer', fontSize: '13px', padding: 0, textDecoration: 'underline' }}>Privacy &amp; terms</button>
+        <button onClick={() => onOpenLegal?.('privacy')} style={{ background: 'none', border: 0, color: '#136260', cursor: 'pointer', fontSize: '13px', padding: 0, textDecoration: 'underline' }}>Privacy policy</button>
+        <button onClick={() => onOpenLegal?.('terms')} style={{ background: 'none', border: 0, color: '#136260', cursor: 'pointer', fontSize: '13px', padding: 0, textDecoration: 'underline' }}>Terms &amp; conditions</button>
       </div>
     </aside>
   )
