@@ -47,7 +47,7 @@ const posts = [
   },
   {
     id: 4,
-    category: 'Announcement',
+    category: 'Announcement.',
     date: 'June 20, 2025',
     title: 'Emergency Room Staffing Upgrade Effective July 2025',
     excerpt:
