@@ -21,7 +21,7 @@ const posts = [
   },
   {
     id: 2,
-    category: 'Hospital Update.',
+    category: 'Hospital Update',
     date: 'July 15, 2025',
     title: 'Laboratory Department Now Offers Extended Operating Hours',
     excerpt:
