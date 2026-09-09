@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Page } from '../../App'
+import type { Page } from '../App'
 
 interface Props {
   currentPage: Page
@@ -36,6 +36,7 @@ const navGroups: NavGroup[] = [
       { label: 'Services', page: 'services' },
       { label: 'Doctors', page: 'doctors' },
       { label: 'Departments', page: 'departments' },
+      { label: 'Centers', page: 'centers' },
     ],
   },
   {
@@ -206,7 +207,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
               <img
                 src="/images/lbhi_logo.png"
                 alt="LBHI Logo"
-                style={{ width: '48px', height: '48px', objectFit: 'contain', flexShrink: 0 }}
+                style={{ width: '80px', height: '80px', objectFit: 'contain', flexShrink: 0 }}
               />
               <div style={{ textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div>
@@ -220,7 +221,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
                       letterSpacing: '0.005em',
                     }}
                   >
-                    Leyte Baptist Hospital
+                    Leyte Baptist Hospital, Inc.
                   </div>
                   <div
                     style={{
@@ -442,7 +443,7 @@ export default function Navigation({ currentPage, navigate }: Props) {
         <div className="mobile-overlay" style={{ position: 'fixed', inset: 0, zIndex: 60, backgroundColor: INK_DEEP, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid rgba(201,164,92,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-              <img src="/images/lbhi_logo.png" alt="LBHI Logo" style={{ width: '34px', height: '34px', objectFit: 'contain' }} />
+              <img src="/images/lbhi_logo.png" alt="LBHI Logo" style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
               <div>
                 <div style={{ color: '#ffffff', fontFamily: SERIF, fontSize: '13px', fontWeight: 500, lineHeight: 1.15 }}>Leyte Baptist Hospital</div>
                 <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>Mission Hospital</div>

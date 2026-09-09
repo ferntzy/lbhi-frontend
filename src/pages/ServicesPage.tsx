@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Icon from '../components/Icon'
-import type { Page } from '../../App'
+import type { Page } from '../App'
 
 interface Props {
   navigate: (page: Page) => void

@@ -2,6 +2,7 @@ import type { Page } from "../App"
 
 interface Props {
   navigate: (page: Page) => void
+  onOpenLegal?: (page: 'privacy' | 'terms') => void
 }
 
 const exploreLinks: { label: string page: Page }[] = [
@@ -121,7 +122,7 @@ function NavColumn({
   )
 }
 
-export default function Footer({ navigate }: Props) {
+export default function Footer({ navigate, onOpenLegal }: Props) {
   return (
     <footer
       style={{
@@ -292,7 +293,7 @@ export default function Footer({ navigate }: Props) {
                     marginTop: "2px",
                   }}
                 >
-                  Hilongos, Leyte
+                 R.V. Fulache Street, Barangay Eastern, Hilongos, Leyte, 6524
                 </div>
               </div>
             </div>

@@ -37,7 +37,7 @@ export type Page = "home" | "about" | "services" | "doctors" | "departments" | "
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home")
 
-  const navigate = (page: Page) => {
+  const navigate = (page: Page, replace = false) => {
     setCurrentPage(page)
 
     window.scrollTo({ top: 0, behavior: "smooth" })
@@ -187,7 +187,7 @@ export default function App() {
         return <NotFoundPage navigate={navigate} />
 
       default:
-        return <HomePage navigate={navigate} />
+        return <NotFoundPage navigate={navigate} />
     }
   }
 
