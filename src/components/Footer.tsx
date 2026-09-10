@@ -271,7 +271,7 @@ export default function Footer({ navigate, onOpenLegal }: Props) {
                   <circle cx="12" cy="10" r="3" stroke={GOLD} strokeWidth="1.8" />
                 </svg>
                 <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '13.5px', lineHeight: 1.6 }}>
-                  Hilongos, Southern Leyte
+                  Hilongos, Leyte
                   <br />
                   Leyte, Philippines
                 </span>
